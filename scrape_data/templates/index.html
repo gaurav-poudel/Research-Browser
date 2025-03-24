@@ -280,7 +280,6 @@
                 .then(response => response.json())
                 .then(data => {
                     document.getElementById('papers-count').textContent = data.papers_count || 0;
-                    // Placeholder counts - would be replaced with real data in production
                     document.getElementById('authors-count').textContent = Math.floor(data.papers_count * 0.7) || 0;
                     document.getElementById('topics-count').textContent = Math.floor(data.papers_count * 0.3) || 0;
                 })

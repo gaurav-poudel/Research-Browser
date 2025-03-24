@@ -1,0 +1,13 @@
+version: '3'
+
+services:
+  web:
+    build: .
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./research_papers.pkl:/app/research_papers.pkl
+      - ./tf_idf_index.pkl:/app/tf_idf_index.pkl
+    restart: always
+    environment:
+      - FLASK_ENV=production
