@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Results - {{ query }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #0e3b7d;
+            --secondary-color: #0091da;
+            --accent-color: #e8edfa;
+            --dark-text: #333;
+            --light-text: #f8f9fa;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            background-color: #f5f7fa;
+            color: var(--dark-text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            padding: 15px 0;
+            color: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header a {
+            color: white;
+            text-decoration: none;
+        }
+        
+        .header a:hover {
+            opacity: 0.9;
+        }
+        
+        .brand {
+            font-weight: 600;
+            font-size: 1.3rem;
+        }
+        
+        .search-form input {
+            border-radius: 8px 0 0 8px;
+            height: 45px;
+            border: none;
+        }
+        
+        .search-form input:focus {
+            box-shadow: none;
+        }
+        
+        .search-form button {
+            border-radius: 0 8px 8px 0;
+            background-color: white;
+            color: var(--secondary-color);
+            border: none;
+            height: 45px;
+            transition: all 0.2s ease;
+        }
+        
+        .search-form button:hover {
+            background-color: var(--accent-color);
+            color: var(--primary-color);
+        }
+        
+        .search-info {
+            padding: 20px 0;
+            border-bottom: 1px solid #e9ecef;
+            margin-bottom: 20px;
+            color: #6c757d;
+        }
+        
+        .result-item {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .result-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .result-title {
+            font-size: 1.3rem;
+            color: var(--primary-color);
+            margin-bottom: 8px;
+            font-weight: 600;
+            text-decoration: none;
+        }
+        
+        .result-title:hover {
+            text-decoration: underline;
+        }
+        
+        .result-link {
+            color: #28a745;
+            font-size: 0.85rem;
+            word-break: break-all;
+            display: block;
+            margin-bottom: 10px;
+        }
+        
+        .result-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 15px 0;
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+        
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .result-abstract {
+            margin: 15px 0;
+            color: #495057;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        
+        .result-score {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            background-color: var(--accent-color);
+            color: var(--primary-color);
+            margin-top: 10px;
+        }
+        
+        .no-results {
+            background-color: white;
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .no-results-icon {
+            font-size: 3rem;
+            color: #6c757d;
+            margin-bottom: 20px;
+        }
+        
+        footer {
+            background-color: #f8f9fa;
+            padding: 20px 0;
+            margin-top: auto;
+            border-top: 1px solid #e9ecef;
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+        
+        @media (max-width: 768px) {
+            .search-form {
+                margin-top: 15px;
+            }
+            
+            .brand {
+                font-size: 1.1rem;
+            }
+            
+            .result-meta {
+                flex-direction: column;
+                gap: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header with Search -->
+    <div class="header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-3 mb-2 mb-md-0">
+                    <a href="/" class="brand d-flex align-items-center">
+                        <i class="fas fa-book-open me-2"></i> Research Browser
+                    </a>
+                </div>
+                <div class="col-md-9">
+                    <form action="/search" method="get" class="search-form">
+                        <div class="input-group">
+                            <input type="text" name="q" class="form-control" value="{{ query }}" required>
+                            <button class="btn" type="submit">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Section -->
+    <div class="container mt-4">
+        <div class="search-info">
+            <p>Found {{ results|length }} results for <strong>"{{ query }}"</strong></p>
+        </div>
+        
+        <div class="row">
+            <div class="col-lg-8">
+                {% if not results %}
+                <div class="no-results">
+                    <div class="no-results-icon">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <h3>No results found</h3>
+                    <p>Try using different search terms or browse our recent publications.</p>
+                </div>
+                {% endif %}
+                
+                {% for result in results %}
+                <div class="result-item">
+                    <a href="{{ result.link }}" class="result-title" target="_blank">{{ result.title }}</a>
+                    <span class="result-link">{{ result.link }}</span>
+                    
+                    <div class="result-meta">
+                        <div class="meta-item">
+                            <i class="fas fa-users"></i>
+                            <span>{{ result.authors|join(', ') }}</span>
+                        </div>
+                        <div class="meta-item">
+                            <i class="far fa-calendar-alt"></i>
+                            <span>{{ result.date }}</span>
+                        </div>
+                    </div>
+                    
+                    {% if result.abstract %}
+                    <div class="result-abstract">
+                        {{ result.abstract|truncate(200) }}
+                    </div>
+                    {% endif %}
+                    
+                    <div class="result-score">
+                        Relevance: {{ "%.0f"|format(result.score*100) }}%
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <div class="col-lg-4">
+                <!-- Sidebar with filters -->
+                <div class="card mb-4">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0">Filter Results</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Publication Year</label>
+                            <select class="form-select" id="year-filter">
+                                <option value="">All Years</option>
+                                <option value="2025">2025</option>
+                                <option value="2024">2024</option>
+                                <option value="2023">2023</option>
+                                <option value="2022">2022</option>
+                                <option value="2021">2021</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Sort By</label>
+                            <select class="form-select" id="sort-by">
+                                <option value="relevance">Relevance</option>
+                                <option value="date">Publication Date</option>
+                                <option value="author">Author Name</option>
+                            </select>
+                        </div>
+                        
+                        <button class="btn btn-primary w-100" id="apply-filters">
+                            Apply Filters
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Popular searches -->
+                <div class="card">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0">Popular Searches</h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item px-0">
+                                <a href="/search?q=economics" class="text-decoration-none">
+                                    <i class="fas fa-search-dollar me-2"></i> Economics
+                                </a>
+                            </li>
+                            <li class="list-group-item px-0">
+                                <a href="/search?q=finance" class="text-decoration-none">
+                                    <i class="fas fa-chart-line me-2"></i> Finance
+                                </a>
+                            </li>
+                            <li class="list-group-item px-0">
+                                <a href="/search?q=accounting" class="text-decoration-none">
+                                    <i class="fas fa-file-invoice-dollar me-2"></i> Accounting
+                                </a>
+                            </li>
+                            <li class="list-group-item px-0">
+                                <a href="/search?q=sustainability" class="text-decoration-none">
+                                    <i class="fas fa-leaf me-2"></i> Sustainability
+                                </a>
+                            </li>
+                            <li class="list-group-item px-0">
+                                <a href="/search?q=banking" class="text-decoration-none">
+                                    <i class="fas fa-university me-2"></i> Banking
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Footer -->
+    <footer>
+        <div class="container text-center">
+            <p>© 2025 Research Browser</p>
+        </div>
+    </footer>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Basic filter functionality demo
+        document.getElementById('apply-filters').addEventListener('click', function() {
+            // In a real implementation, this would apply the filters
+            // For now, just show a message that this is a demo feature
+            alert('This is a demo feature. Filters would be applied in the complete implementation.');
+        });
+    </script>
+</body>
+</html>
